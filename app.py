@@ -52,8 +52,11 @@ def render_question(question_id):
     Contains basic validation to redirect user to their current question. (i.e. trying
     to manually update to access question out of order or non-existant question)
     """
+    # User hasn't started a survey and tries to jump ahead.
+    if current_survey == None:
+        return redirect("/")
 
-    # User ties manually editing URL to prev question after finishing
+    # User tries manually editing URL to prev question after finishing
     if len(current_survey.questions) == len(responses):
         flash("You've already completed this survey", "error")
         return redirect("/completed")
@@ -96,7 +99,7 @@ def submit_answer():
     return redirect(f"/questions/{len(responses)}")
 
 
-@app.route("/prev")
+@app.route("/prev", methods=["POST"])
 def render_previous_question():
     """Removes most recent response from responses list and redirects to the previous
     question, passing along response info as URL Paremeters for autofill."""
@@ -112,11 +115,20 @@ def render_thank_you():
     """Thank you page rendered upon completion of the survey. Displays thank you
     message and all quetions + user answers."""
 
+    # User hasn't started a survey
+    if current_survey == None:
+        return redirect("/")
+
+    # User tries jumping to the end before finishing survey
+    if len(current_survey.questions) != len(responses):
+        flash("Please complete all questions before submitting survey.")
+        return redirect(f"/questions/{len(responses)}")
+
     questions = [question.question for question in current_survey.questions]
 
     return render_template(
-        "thank_you.html", 
-        title=current_survey.title, 
+        "thank_you.html",
+        title=current_survey.title,
         questions=questions,
         responses=responses,
     )

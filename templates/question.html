@@ -24,9 +24,9 @@
         {% endif %}
         
         {% if current_question != 0 %}
-            <a href="/prev">Previous Question</a>
+            <button formaction="/prev" formnovalidate>Previous Question</button>
         {% endif %}
-        
+
         <button>
             {% if current_question == total_questions %}
                 Submit Survey
