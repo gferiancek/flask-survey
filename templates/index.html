@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Flask Survey{% endblock %}
+
+{% block content %}
+    <h1>Survey Selection</h1>
+    <form action="/" method="POST">
+        <label for="selection">Select desired survey:</label>
+        <select name="survey_id" id="selection">
+            {% for survey in surveys %}
+                <option value="{{survey}}">{{survey|capitalize}}</option>
+            {% endfor %}
+        </select>
+        <button>Begin Survey</button>
+    </form>
+{% endblock %}
