@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}{{title}}{% endblock %}
+
+{% block content %}
+    <h1>{{title}}</h1>
+    <form action="/answer" method="POST">
+        <fieldset>
+            <legend>{{question.question}}</legend>
+            {% for choice in question.choices %}
+                <input 
+                    type="radio" 
+                    name="answer" 
+                    id="choice-{{loop.index}}" 
+                    {% if answer == choice %} checked {% endif %}>
+                <label for="choice-{{loop.index}}">{{choice}}</label>
+            {% endfor %}
+        </fieldset>
+
+        {% if question.allow_text %}
+            <textarea name="comment" cols="30" rows="10">{{comment}}</textarea>
+        {% endif %}
+
+        {% if current_question != 0 %}
+            <button formaction="/prev" formmethod="POST">Previous Question</button>
+        {% endif %}
+
+        <button>
+            {% if current_question == total_questions %}
+                Submit Survey
+            {% else %}
+                Next Question
+            {% endif %}
+        </button>
+    </form>
+{% endblock %}

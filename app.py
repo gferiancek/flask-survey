@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, flash
 from flask_debugtoolbar import DebugToolbarExtension
 from surveys import surveys
 
@@ -9,7 +9,7 @@ app.config["DEBUG_TB_INTERCEPT_REDIRECTS"] = False
 
 debug = DebugToolbarExtension(app)
 
-responses = ['one']
+responses = ["one"]
 current_survey = None
 
 
@@ -40,4 +40,39 @@ def begin_survey():
     """Clears response data and redirects user to the first question."""
 
     responses.clear()
-    return redirect('/questions/0')
+    return redirect("/questions/0")
+
+
+@app.route("/questions/<int:question_id>")
+def render_question(question_id):
+    """Renders the current question to the user, or redirects to /completed if
+    all questions have been answered.
+
+    Contains basic validation to redirect user to their current question. (i.e. trying
+    to manually update to access question out of order or non-existant question)
+    """
+
+    # User ties manually editing URL to prev question after finishing
+    if len(current_survey.questions) == len(responses):
+        flash("You've already completed this survey", 'error')
+        return redirect("/completed")
+
+    # User tries skipping ahead / to non-existant question by editing URL.
+    if len(responses) != question_id:
+        flash(f"/questions/{question_id} is not a valid question.", 'error')
+        return redirect(f"/questions/{len(responses)}")
+
+    # When user navigates to previous question, their submitted answers
+    # are passed as URL Paremeters to auto fill / select answers.
+    prev_answer = request.args.get("answer", "")
+    prev_comment = request.args.get("comment", "")
+
+    return render_template(
+        "question.html",
+        title=current_survey.title,
+        question=current_survey.questions[question_id],
+        current_question=question_id,
+        total_questions=len(current_survey.questions) - 1,
+        answer=prev_answer,
+        comment=prev_comment,
+    )
