@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, flash
 from flask_debugtoolbar import DebugToolbarExtension
 from surveys import surveys
+from urllib.parse import urlencode
 
 app = Flask(__name__)
 
@@ -54,12 +55,12 @@ def render_question(question_id):
 
     # User ties manually editing URL to prev question after finishing
     if len(current_survey.questions) == len(responses):
-        flash("You've already completed this survey", 'error')
+        flash("You've already completed this survey", "error")
         return redirect("/completed")
 
     # User tries skipping ahead / to non-existant question by editing URL.
     if len(responses) != question_id:
-        flash(f"/questions/{question_id} is not a valid question.", 'error')
+        flash(f"/questions/{question_id} is not a valid question.", "error")
         return redirect(f"/questions/{len(responses)}")
 
     # When user navigates to previous question, their submitted answers
@@ -76,3 +77,31 @@ def render_question(question_id):
         answer=prev_answer,
         comment=prev_comment,
     )
+
+
+@app.route("/answer", methods=["POST"])
+def submit_answer():
+    """Adds users answer to responses list and then redirects to next question."""
+
+    # answer is mandatory, while comment is optional.
+    answer = request.form["answer"]
+    comment = request.form.get("comment", "")
+
+    responses.append({"answer": answer, "comment": comment})
+
+    # User has answered all questions
+    if len(current_survey.questions) == len(responses):
+        return redirect("/completed")
+
+    return redirect(f"/questions/{len(responses)}")
+
+
+@app.route("/prev")
+def render_previous_question():
+    """Removes most recent response from responses list and redirects to the previous
+    question, passing along response info as URL Paremeters for autofill."""
+
+    prev_response = responses.pop()
+    encoded_params = urlencode(prev_response)
+
+    return redirect(f"/questions/{len(responses)}?{encoded_params}")

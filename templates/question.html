@@ -12,7 +12,9 @@
                     type="radio" 
                     name="answer" 
                     id="choice-{{loop.index}}" 
-                    {% if answer == choice %} checked {% endif %}>
+                    value="{{choice}}"
+                    {% if answer == choice %} checked {% endif %}
+                    required >
                 <label for="choice-{{loop.index}}">{{choice}}</label>
             {% endfor %}
         </fieldset>
@@ -20,11 +22,11 @@
         {% if question.allow_text %}
             <textarea name="comment" cols="30" rows="10">{{comment}}</textarea>
         {% endif %}
-
+        
         {% if current_question != 0 %}
-            <button formaction="/prev" formmethod="POST">Previous Question</button>
+            <a href="/prev">Previous Question</a>
         {% endif %}
-
+        
         <button>
             {% if current_question == total_questions %}
                 Submit Survey
@@ -33,4 +35,5 @@
             {% endif %}
         </button>
     </form>
+
 {% endblock %}
