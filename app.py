@@ -10,7 +10,7 @@ app.config["DEBUG_TB_INTERCEPT_REDIRECTS"] = False
 
 debug = DebugToolbarExtension(app)
 
-responses = ["one"]
+responses = []
 current_survey = None
 
 
@@ -105,3 +105,18 @@ def render_previous_question():
     encoded_params = urlencode(prev_response)
 
     return redirect(f"/questions/{len(responses)}?{encoded_params}")
+
+
+@app.route("/completed")
+def render_thank_you():
+    """Thank you page rendered upon completion of the survey. Displays thank you
+    message and all quetions + user answers."""
+
+    questions = [question.question for question in current_survey.questions]
+
+    return render_template(
+        "thank_you.html", 
+        title=current_survey.title, 
+        questions=questions,
+        responses=responses,
+    )

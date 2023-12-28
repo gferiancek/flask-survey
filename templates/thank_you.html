@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Thank You!{% endblock %}
+
+{% block content %}
+    <h1>Thank you for completing the {{title}}</h1>
+    <figure>
+        <figcaption>Here are the results we collected:</figcaption>
+        <ul>
+            {% for question in questions %}
+                <li>
+                    <b>{{question}}: </b>
+                    {% with response = responses[loop.index0] %}
+                        {% if response["comment"] %}
+                            {{response["answer"]}} - {{response["comment"]}}
+                        {% else %}
+                            {{response["answer"]}}
+                        {% endif %}
+                    {% endwith %}
+                    </li>
+            {% endfor %}
+        </ul>
+    </figure>
+{% endblock %}
